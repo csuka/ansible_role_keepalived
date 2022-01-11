@@ -4,7 +4,7 @@ lint: |
   yamllint .
   ansible-lint
 scenario:
-  name: cluster
+  name: default
 dependency:
   name: galaxy
 driver:
