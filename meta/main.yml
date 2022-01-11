@@ -2,14 +2,17 @@
 galaxy_info:
   author: Kevin Csuka
   role_name: keepalived
-  description: This role installs and configures keepalived
-  license: Apache
-  min_ansible_version: 2.9.13
+  namespace: kcsuka
+  description: An role to install and configure keepalived
+  license: Apache 2.0
+  min_ansible_version: 2.9
   platforms:
     - name: EL
       versions:
         - 8
   galaxy_tags:
     - keepalived
+    - high
+    - available
 
 dependencies: []
