@@ -1,0 +1,26 @@
+---
+- name: Converge
+  hosts:
+    - test-multi-01
+    - test-multi-02
+  any_errors_fatal: true
+  roles:
+    - ../keepalived
+  pre_tasks:
+    - name: retrieve last number of IP address, and add + 1
+      set_fact:
+        ipp: "{{ ansible_default_ipv4.address.split('.')[-1][-2:] | int + 1 }}"
+      when: ansible_hostname == 'test-multi-02'
+
+    - name: set new keepalived vip with the number added
+      set_fact:
+        keepalived_vip: "{{ ansible_default_ipv4.address.split('.')[0] }}.\
+         {{ ansible_default_ipv4.address.split('.')[1] }}.\
+         {{ ansible_default_ipv4.address.split('.')[2] | replace ('\n','' ) }}.\
+         {{ ipp }}"
+      when: ansible_hostname == 'test-multi-02'
+
+    - name: set the new ip for other hosts in play as well
+      set_fact:
+        keepalived_vip: "{{ hostvars['test-multi-02']['keepalived_vip'] }}"
+      when: ansible_hostname != 'test-multi-02'

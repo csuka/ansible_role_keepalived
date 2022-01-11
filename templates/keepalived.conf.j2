@@ -1,0 +1,36 @@
+! # ansible managed
+! Configuration File for keepalived
+
+global_defs {
+    router_id {{ ansible_fqdn }}
+    {% if keepalived_script | length %}
+    enable_script_security
+    {% endif %}
+}
+
+{% if keepalived_script | length %}
+vrrp_script {{ keepalived_script.name }} {
+    script "{{ keepalived_script.script }}"
+    interval {{ keepalived_script.interval }}
+}
+{% endif %}
+
+vrrp_instance VI_{% if keepalived_role == 'MASTER' %}1{% else %}2{% endif %} {
+    state {{ keepalived_role }}
+    interface {{ keepalived_interface }} # binding virtual IP to
+    virtual_router_id 50
+    mcast_src_ip {{ keepalived_system_ip }}
+    priority {% if keepalived_role == 'MASTER' %}100{% else %}90{% endif %}
+
+    advert_int 1
+
+    {% if keepalived_script | length %}
+    track_script {
+        {{ keepalived_script.name }}
+    }
+    {% endif %}
+
+    virtual_ipaddress {
+        {{ keepalived_vip }}/32
+    }
+}

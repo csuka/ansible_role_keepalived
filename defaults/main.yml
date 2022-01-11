@@ -1,0 +1,26 @@
+---
+keepalived_pkg: keepalived
+keepalived_version: v2.2.4
+keepalived_config: /etc/keepalived/keepalived.conf
+
+keepalived_checkout_path: /var/lib/keepalived/
+
+keepalived_global_defs:
+  notification_email: []
+  # - aaaa@example.com
+  # - bbbb@example.com
+  # - cccc@example.com
+  notification_email_from: ""
+  smtp_server: ""
+  smtp_connect_timeout: 10
+
+keepalived_interface: eth0
+keepalived_system_ip: "{{ ansible_default_ipv4.address }}"
+
+keepalived_script: []
+# name: something
+# script: /usr/bin/pgrep service-name
+# interval: 2
+
+keepalived_role: MASTER  # or BACKUP
+keepalived_vip: 10.0.0.5

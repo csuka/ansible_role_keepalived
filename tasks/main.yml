@@ -1,0 +1,118 @@
+---
+- name: assert | set amount of hosts in play
+  set_fact:
+    host_count: "{{ ansible_play_hosts | length }}"
+
+- name: assert | ensure that at least 2 servers are in the play
+  assert:
+    that: "{{ host_count }} >= 2"
+
+- name: install dependencies
+  dnf:
+    name: "{{ item }}"
+  loop:
+    - git
+    - gcc
+    - gcc-c++
+    - make
+    - automake
+    - libtool
+    - pkg-config
+    - openssl-devel
+
+- name: ensure checkout dir exists
+  file:
+    path: "{{ keepalived_checkout_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: checkout repository
+  git:
+    repo: https://github.com/acassen/keepalived.git
+    dest: "{{ keepalived_checkout_path }}"
+    version: v2.2.1
+    force: true
+  register: git_checkout
+
+- block:
+
+    - name: configure pre-build
+      shell: >
+        mkdir m4 ;
+        autoreconf --install --force &&
+        autoheader &&
+        automake --add-missing &&
+        autoreconf
+      args:
+        chdir: "{{ keepalived_checkout_path }}"
+        warn: false
+
+    - name: regenerate the build files
+      shell: ./build_setup
+      args:
+        chdir: "{{ keepalived_checkout_path }}"
+
+    - name: build
+      shell: >
+        ./configure &&
+        make -j{{ ansible_processor_cores + 1 }}
+      args:
+        chdir: "{{ keepalived_checkout_path }}"
+
+    - name: install
+      shell: make install
+      args:
+        chdir: "{{ keepalived_checkout_path }}"
+
+    - name: cleanup build
+      shell: git reset --hard && git clean -d -x -f
+      args:
+        chdir: "{{ keepalived_checkout_path }}"
+
+  when: git_checkout.changed
+
+- name: ensure config dir exists
+  file:
+    path: "{{ keepalived_config | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: ensure config is set
+  template:
+    src: keepalived.conf.j2
+    dest: "{{ keepalived_config }}"
+    owner: root
+    group: root
+    mode: '0600'
+  register: keepalived_config
+
+- name: template service file
+  template:
+    src: keepalived.service
+    dest: /usr/lib/systemd/system/keepalived.service
+    mode: '0644'
+    owner: root
+    group: root
+  register: keepalived_service_file
+
+- name: reload deamons if service file is placed
+  systemd:
+    daemon_reload: true
+  when: keepalived_service_file.changed
+
+- name: restart keepalived service when a config changed
+  systemd:
+    name: keepalived
+    state: restarted
+    enabled: true
+  when: keepalived_config.changed
+
+- name: ensure service is started and enabled
+  systemd:
+    name: keepalived
+    state: started
+    enabled: true
