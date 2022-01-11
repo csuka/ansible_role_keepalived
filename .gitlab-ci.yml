@@ -7,15 +7,13 @@ services:
     command: ["dockerd-entrypoint.sh"]
 
 variables:
-  DOCKER_HOST: tcp://docker:2375/
   DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
+  DOCKER_TLS_CERTDIR: "/certs"
 
 stages:
   - test
 
 before_script:
-  - echo "nameserver 8.8.8.8" >> /etc/resolv.conf
   - docker info
   - rm -rf "/var/cache/apk/*"
   - apk -U upgrade && apk update
@@ -29,11 +27,13 @@ molecule:
   script:
     - docker -v
     - python3 -V
-    - pip3 install ansible ansible-lint flake8 molecule docker docker-compose
+    - python3 -m pip install ansible ansible-lint
+    - python3 -m pip install flake8 molecule yamllint requests
+    - python3 -m pip install docker docker-compose
     - python3 -m pip install "molecule[docker]"
     - ansible --version
     - molecule --version
-    - molecule test
+    - molecule test -s default
   except:
     changes:
       - README.md

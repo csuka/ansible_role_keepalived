@@ -9,16 +9,15 @@
 
 - name: install dependencies
   dnf:
-    name: "{{ item }}"
-  loop:
-    - git
-    - gcc
-    - gcc-c++
-    - make
-    - automake
-    - libtool
-    - pkg-config
-    - openssl-devel
+    name:
+      - git
+      - gcc
+      - gcc-c++
+      - make
+      - automake
+      - libtool
+      - pkg-config
+      - openssl-devel
 
 - name: ensure checkout dir exists
   file:
@@ -32,7 +31,7 @@
   git:
     repo: https://github.com/acassen/keepalived.git
     dest: "{{ keepalived_checkout_path }}"
-    version: v2.2.1
+    version: "{{ keepalived_version }}"
     force: true
   register: git_checkout
 

@@ -1,3 +1,29 @@
+# Keepalived
+
+An Ansible role that installs, configures and manages keepalived for EL 8.
+
+## Configuration
+Set version to install with:
+
+```yaml
+keepalived_version: v2.2.4
+```
+
+Config file:
+```yaml
+keepalived_config: /etc/keepalived/keepalived.conf
+```
+
+Since the application is installed from source, the git repository is cloned to the following directory:
+
+```yaml
+keepalived_checkout_path: /var/lib/keepalived/
+```
+
+Set notification emails with:
+```yaml
+keepalived_global_defs:
+  notification_email: []
   # - aaaa@example.com
   # - bbbb@example.com
   # - cccc@example.com
@@ -27,7 +53,7 @@ keepalived_role: MASTER  # or BACKUP
 keepalived_vip: 10.0.0.5
 ```
 
-# Requirements
+## Requirements
 
 Given all this, the minimum requirements are:
 
