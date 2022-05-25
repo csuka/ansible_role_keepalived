@@ -2,7 +2,7 @@
 
 An Ansible role that installs, configures and manages keepalived for EL 8.
 
-This role will clone the keepalived source code from github.com, and install the application from source.
+This role will clone the keepalived source code from github.com, and installs the application from source.
 
 ## Configuration
 Set version to install with:
