@@ -1,11 +1,12 @@
 ---
-- name: assert | set amount of hosts in play
+- name: set amount of hosts in play
   set_fact:
     host_count: "{{ ansible_play_hosts | length }}"
 
-- name: assert | ensure that at least 2 servers are in the play
+- name: ensure that at least 2 servers are in the play
   assert:
-    that: "{{ host_count }} >= 2"
+    that:
+      - host_count >= '2'
 
 - name: install dependencies
   dnf:

@@ -1,6 +1,6 @@
 ---
 keepalived_pkg: keepalived
-keepalived_version: v2.2.4
+keepalived_version: v2.2.7
 keepalived_config: /etc/keepalived/keepalived.conf
 
 keepalived_checkout_path: /var/lib/keepalived/
